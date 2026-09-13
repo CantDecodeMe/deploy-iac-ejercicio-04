@@ -1,0 +1,19 @@
+{
+  "name": "libros-ms-electron-client",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cliente de escritorio (Electron) para libros-ms -- Ejercicio 04",
+  "main": "src/main/main.js",
+  "scripts": {
+    "postinstall": "node node_modules/electron/install.js",
+    "start": "electron .",
+    "test": "node --test test/",
+    "check:env": "node scripts/check-env.js",
+    "package:win": "electron-packager . libros-ms-client --platform=win32 --arch=x64 --out=../../release --overwrite",
+    "package:linux": "electron-packager . libros-ms-client --platform=linux --arch=x64 --out=../../release --overwrite"
+  },
+  "devDependencies": {
+    "electron": "44.3.0",
+    "electron-packager": "17.1.2"
+  }
+}

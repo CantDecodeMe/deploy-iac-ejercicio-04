@@ -1,0 +1,147 @@
+:root {
+  color-scheme: light dark;
+  --fondo: #f8fafc;
+  --texto: #0f172a;
+  --tarjeta: #ffffff;
+  --borde: #e2e8f0;
+  --acento: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #0f172a;
+    --texto: #e2e8f0;
+    --tarjeta: #1e293b;
+    --borde: #334155;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--borde);
+}
+
+.barra h1 { font-size: 1.1rem; margin: 0; }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--borde);
+  background: var(--acento);
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 14px;
+}
+
+button.secundario { background: transparent; color: var(--texto); }
+
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+.panel-config {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--borde);
+  background: color-mix(in srgb, var(--fondo) 92%, var(--texto) 8%);
+}
+
+/* Una regla de autor con `display` gana siempre sobre el `display:none`
+   del user-agent para [hidden], asi que hay que devolverlo explicitamente. */
+.panel-config[hidden] { display: none; }
+
+.panel-config label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: .8rem;
+  flex: 1 1 240px;
+}
+
+.panel-config input {
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--borde);
+  background: var(--tarjeta);
+  color: var(--texto);
+}
+
+.acciones-config { display: flex; gap: 8px; }
+
+.banner-error {
+  margin: 12px 20px 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: .9rem;
+}
+
+main { flex: 1; overflow-y: auto; padding: 20px; }
+
+.grid-libros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.tarjeta-libro {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-libro img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: var(--borde);
+}
+
+.tarjeta-libro .cuerpo { padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+
+.tarjeta-libro h3 { font-size: .95rem; margin: 0 0 2px; line-height: 1.25; }
+
+.tarjeta-libro .autores { font-size: .8rem; opacity: .75; }
+
+.tarjeta-libro .detalle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: .75rem;
+  opacity: .85;
+  margin-top: 4px;
+}
+
+.tarjeta-libro .precio { font-weight: 600; margin-top: 6px; }
+
+.estado-vacio { opacity: .6; padding: 40px 0; text-align: center; grid-column: 1 / -1; }
+
+.paginador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px;
+  border-top: 1px solid var(--borde);
+}

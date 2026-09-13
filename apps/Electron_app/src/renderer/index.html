@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline';" />
+  <title>Catálogo · libros-ms</title>
+  <link rel="stylesheet" href="renderer.css" />
+</head>
+<body>
+  <header class="barra">
+    <h1>Catálogo de la librería</h1>
+    <button id="boton-config" type="button">Configuración</button>
+  </header>
+
+  <section id="panel-config" class="panel-config" hidden>
+    <label>
+      URL del servidor
+      <input id="input-server-url" type="text" placeholder="https://libros.maxthecoder.online" />
+    </label>
+    <label>
+      Endpoint
+      <input id="input-endpoint" type="text" placeholder="/books" />
+    </label>
+    <div class="acciones-config">
+      <button id="boton-guardar-config" type="button">Guardar y recargar</button>
+      <button id="boton-restablecer-config" type="button" class="secundario">Restablecer</button>
+    </div>
+  </section>
+
+  <div id="banner-error" class="banner-error" hidden></div>
+
+  <main>
+    <div id="grid-libros" class="grid-libros" aria-live="polite"></div>
+  </main>
+
+  <footer class="paginador">
+    <button id="boton-anterior" type="button">&larr; Anterior</button>
+    <span id="texto-paginacion">Página 1 de 1</span>
+    <button id="boton-siguiente" type="button">Siguiente &rarr;</button>
+  </footer>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
