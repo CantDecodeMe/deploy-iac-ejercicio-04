@@ -73,7 +73,7 @@ def listar_libros(
                ) AS conceptos,
                COUNT(*) OVER() AS total_filas
           FROM libros l
-          LEFT JOIN categorias c ON c.categoria_id = l.categoria_id
+          LEFT JOIN categorias cat ON cat.categoria_id = l.categoria_id
           LEFT JOIN editoriales ed ON ed.editorial_id = l.editorial_id
           {where}
          ORDER BY l.libro_id
@@ -110,7 +110,7 @@ def obtener_libro_por_isbn(cur, isbn: str) -> dict | None:
                  '[]'::json
                ) AS conceptos
           FROM libros l
-          LEFT JOIN categorias c ON c.categoria_id = l.categoria_id
+          LEFT JOIN categorias cat ON cat.categoria_id = l.categoria_id
           LEFT JOIN editoriales ed ON ed.editorial_id = l.editorial_id
          WHERE l.isbn = %s
     """
