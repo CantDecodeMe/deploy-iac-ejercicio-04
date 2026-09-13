@@ -7,6 +7,15 @@ del Ejercicio 03 sobre la misma base -- no modifica el codigo de ninguno de
 los dos, y el unico cambio de esquema es la columna aditiva `formato`
 (ver [Decisiones de ingenieria](#decisiones-de-ingenieria)).
 
+> **Nota sobre el enunciado.** La consigna original (`enunciados/Ejercicio-04.md`
+> en el journal) apunta a un microservicio de ejemplo del curso
+> (`http://34.51.99.221:5001/books`). Aqui se construyo un microservicio propio
+> siguiendo el mismo patron de infraestructura que ej02/ej03, y la app Electron
+> lo usa como valor por defecto -- pero el requisito real (URL y endpoint
+> configurables, persistidos en `localStorage`) se cumple igual, asi que
+> tambien funciona apuntando al servidor del curso o a cualquier otro que
+> hable el mismo contrato XML.
+
 | | |
 |---|---|
 | Endpoint | `https://libros.maxthecoder.online/books` |
@@ -86,11 +95,31 @@ curl -I http://localhost:5001/download-client
 
 1. Entra a `https://libros.maxthecoder.online/download-client`.
 2. Descarga el paquete de tu sistema operativo.
-3. **Linux**: descomprime y ejecuta `./run.sh`. **Windows**: descomprime y
-   ejecuta el `.exe` incluido en el `.zip`.
+3. **Windows 11**: descomprime el `.zip` y ejecuta `libros-ms-client.exe`.
+   **Linux**: descomprime y ejecuta `./run.sh`.
 
 No hace falta instalar Node ni Electron en tu laptop -- el paquete ya trae el
-runtime.
+runtime. Pasos detallados (incluida la advertencia de SmartScreen en Windows)
+en [`apps/Electron_app/README.md`](apps/Electron_app/README.md).
+
+## Desarrollar y empaquetar el cliente Electron
+
+Este repo no depende de un `npm` global -- se vendoriza en `tools/npm/`
+(descargado del registro, no versionado) porque el Pi donde se desarrollo
+solo tiene el binario `node`, sin `npm`:
+
+```bash
+cd apps/Electron_app
+node ../../tools/npm/bin/npm-cli.js install
+node ../../tools/npm/bin/npm-cli.js run check:env
+node ../../tools/npm/bin/npm-cli.js test              # 17 casos, node --test puro
+cd ../..
+./scripts/empaquetar-clientes.sh                       # genera release/*.zip (Windows + Linux)
+```
+
+`empaquetar-clientes.sh` corre las pruebas antes de empaquetar y falla si no
+pasan. Los `.zip` resultantes se sirven desde `/download-client` -- no se
+versionan en git.
 
 ## Decisiones de ingenieria
 
@@ -116,7 +145,28 @@ tablas que expone el contrato (`libros`, `categorias`, `autores`,
 en vez de solo devolver la ruta y depender de que el cliente conozca la URL
 del monolito.
 
+**Fetch en el proceso main de Electron, no en el renderer.** Evita CORS del
+lado del servidor y evita que el renderer tenga acceso directo a la red. El
+preload corre con `sandbox: false` -- necesario porque el sandbox de Electron
+restringe el `require()` del preload a modulos nativos de Node, no a
+archivos locales del proyecto -- pero el renderer sigue sin
+`nodeIntegration`, ya que la app solo carga su propio `index.html`.
+
+**Parser XML propio, sin dependencias.** El contrato de `libros-ms` es
+simple (sin namespaces, sin CDATA), asi que un parser minimo en
+`src/shared/parseXml.js` evita traer una libreria completa y permite
+probar los modulos puros con `node --test` sin instalar nada. Un bug real
+de esta simplicidad -- `xml.etree.ElementTree` serializa un campo vacio
+como tag self-closing (`<year />`), y la regex de atributos original se
+tragaba esa barra -- se encontro corriendo la app contra datos reales y
+quedo cubierto con una prueba de regresion.
+
 **Empaquetado sin Wine.** `electron-packager` descarga los binarios
 prebuilt de Electron para cada plataforma (no compila nada), asi que se
 puede generar el `.zip` de Windows desde el Raspberry Pi (ARM64/Linux) sin
-necesitar Wine ni una maquina Windows.
+necesitar Wine ni una maquina Windows. La parte no obvia: el paquete
+infiere `appVersion` del campo `version` de `package.json`, y *cualquier*
+valor de `appVersion` (inferido o explicito) obliga a correr `rcedit` --
+un editor de recursos de Windows -- via Wine. Se quito `version` de
+`package.json` (la app es privada, no se publica) para evitar la
+inferencia por completo.
