@@ -1,0 +1,63 @@
+# =====================================================================
+# Ejercicio 04 -- libros-ms
+# =====================================================================
+# Un solo servicio. La base de datos NO se declara aqui a proposito: es la
+# del monolito del Ejercicio 02 (`libreria-db-1`), que ya corre bajo
+# ~/libreria/docker-compose.yml. Este stack se conecta a ella, no la
+# gestiona ni la reinicia.
+# =====================================================================
+
+name: ej04-libros-ms
+
+services:
+  libros-ms:
+    build: ./service
+    # Nombre fijo: es la direccion por la que el contenedor de Cloudflare
+    # resuelve este servicio dentro de la red `services`.
+    container_name: libros-ms
+    env_file: .env
+
+    volumes:
+      # Cliente de escritorio empaquetado (win/linux). Solo lectura: el
+      # servicio los sirve, nunca los escribe.
+      - ./release:/app/release:ro
+      # Portadas reales del monolito. Solo lectura: libros-ms nunca sube
+      # ni borra archivos, solo los re-sirve para cumplir el contrato.
+      - /home/pi/libreria/uploads:/app/uploads:ro
+
+    # Solo loopback. Al exterior se llega por el tunel, no por el puerto:
+    # publicar 0.0.0.0:5001 expondria el servicio en la LAN sin TLS.
+    ports:
+      - "127.0.0.1:5001:8000"
+
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/healthz', timeout=4).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+    # Lo que hace que sobreviva a un reinicio del Pi: Docker arranca con el
+    # sistema y vuelve a levantar el contenedor solo.
+    restart: unless-stopped
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - libreria-net
+      - services
+
+networks:
+  # Red del monolito: por aqui se llega a libreria-db-1.
+  libreria-net:
+    external: true
+    name: libreria_libreria-net
+
+  # Red compartida donde vive cloudflare-tunnel.
+  services:
+    external: true

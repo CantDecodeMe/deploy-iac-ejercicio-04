@@ -1,0 +1,20 @@
+# Secretos: jamas se versionan ni se publican
+.env
+
+# Cliente de escritorio empaquetado: se genera con
+# scripts/empaquetar-clientes.sh y se sirve desde el propio servicio
+# (/download-client), no desde el repo.
+release/*.zip
+
+# Node / Electron
+apps/Electron_app/node_modules/
+apps/Electron_app/out/
+apps/Electron_app/dist/
+
+# npm vendorizado (se descarga con scripts/vendorizar-npm.sh, no se versiona)
+tools/npm/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
